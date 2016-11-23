@@ -45,6 +45,59 @@ static TempSensor *temp_sensor1 = mems_expansion_board->ht_sensor;
 static TempSensor *temp_sensor2 = mems_expansion_board->pt_sensor;
 
 Timer send_timer;
+
+/* LCD feature */
+#include "LCD_RGB_Arduino.h"
+
+rgb_lcd lcd;
+
+const int colorR = 0;
+const int colorG = 0;
+const int colorB = 255;
+
+void lcd_setup() 
+{
+	// set up the LCD's number of columns and rows:
+	lcd.begin(16, 2); 
+
+	lcd.setRGB(colorR, colorG, colorB);
+
+	// Print a message to the LCD.
+	lcd.setCursor(0,0);
+	lcd.print("Arctictern Board");
+	lcd.setCursor(0,1);
+	lcd.print("CodeZoo Ltd.");
+}
+
+void lcd_error()
+{
+	lcd.clear();
+	lcd.setCursor(0,0);
+	lcd.print("Maker Faire");
+	lcd.setCursor(0,1);
+	lcd.print("Seoul 2016");
+}
+
+void lcd_count(char *strLine1, char *strLine2)
+{
+	lcd.clear();
+	lcd.setCursor(0,0);
+	lcd.print(strLine1);
+	lcd.setCursor(0,1);
+	lcd.print(strLine2);
+}
+
+void lcd_logo()
+{
+	lcd.clear();
+	// Print a message to the LCD.
+	lcd.setCursor(0,0);
+	lcd.print("Arctictern Board");
+	lcd.setCursor(0,1);
+	lcd.print("CodeZoo Ltd.");
+}
+//------------------------------------------------------------------------------------
+
 /* Helper function for printing floats & doubles */
 static char *printDouble(char* str, double v, int decimalDigits=2)
 {
@@ -109,6 +162,7 @@ int main() {
 	GPSSerial gps; 
 #endif
 
+	lcd_setup();
 	printf("\r\n--- Starting new run ---\r\n");
 
 	humidity_sensor->ReadID(&id);
@@ -255,7 +309,14 @@ int main() {
 		
 		printf("------------------------------------------------------------------\r\n");
 
-#if 1
+		memset(link, 0x0, sizeof(link));
+		memset(buf, 0x0, sizeof(buf));
+
+		sprintf(link, "%2.2fc, %2.2fp",d_temperature, d_humidity);
+		sprintf(buf, "%dp, %dmV",soc,voltage);
+		lcd_count(link,buf);
+
+#if 0
 		if(pre_abs_acc > 20 && abs_acc > 20)
 			check_acc++;
 		else
